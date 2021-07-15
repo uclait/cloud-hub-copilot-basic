@@ -47,4 +47,20 @@ Getting our defined service into aws is a single command away! With this command
 Upon running this command, copilot will generate and run CloudFormation(CFN) Templates modifying the infrastructure and deploying the application to our specifications. After a few short minutes, the command should complete (it will list the tasks its trying to accomplish) and finally spit out an active url you can copy and view.
 
 ### Assuming you want a pipeline
-Oh boy, here we go... pipelines are the real bread and butter of migrating to the cloud. You can deploy all the apps in the world into your cloud account, but if you can't properly maintain or update them, you're going to be in a world of hurt. That's where AWS CodePipeline and CodeBuild come into play. 
+Oh boy, here we go... pipelines are the real bread and butter of migrating to the cloud. You can deploy all the apps in the world into your cloud account, but if you can't properly maintain or update them, you're going to be in a world of hurt. That's where AWS CodePipeline and CodeBuild come into play. Run the following command:
+
+`copilot pipeline init`
+
+This will prompt you to select the region you wish to deploy. Once you've selected your environment, copilot will generate a pipeline.yaml file which will act as a guide for copilot to provision your pipeline roles, stages, and build projects. You can edit your pipeline.yaml file to change the branch of the repository you're using if you like or to specify an existing github connection. In our case, we want to re-use an existing github connection, so we would modify the pipeline.yaml file under the source / properties block. We would add:
+
+`connection_name: default`
+
+Default is the name of the github connection we currently have setup in our landing zone account. Other workstrams may have a different name for this connection, but a connection would be required if deploying with regard to UCLA. If you were not, you could skip this step as the deployment step of the pipeline will prompt you on what to do next. Once we've modified our pipeline.yaml to fit your needs and committed it to github, we need to deploy the pipeline with:
+
+`copilot pipeline update`
+
+This takes the pipeline as configured, generates the CFN templates and executes them to update the infrastructure stacks. What this means in plain english is that it creates the pipeline for you that will now actively watch your github repo branch for changes and begin building/deploying said changes. As an extra bonus and because I can tell some of you are probably cringing at the idea of any commit triggering a build and deploy, you can modify your pipeline.yaml further to add additional stages. In my case, I would add:
+
+`requires_approval: true`
+
+to the stages section which adds an extra approval stage before deployment. This prevents any untested code from simply deploying without supervision. To approve a deployment, you'll need to log into the aws console, go to CodePipeline and click pipelines on the left hand side. Once there, look for your pipeline and click it. You should see a vertical list of stages (hopefully all successful if builds worked) and the 2nd from last stage will have a "Review" button. There you can set a comment and reject or approve the deployment. If you approve, the pipeline will deploy your latest changes and deprovision your previous containers from the original service deployment.
