@@ -16,11 +16,11 @@ In the co-pilot world, the base workstream is called an application. Application
 ### Creating the application and service
 The following command tells copilot we want to initialize an app and we have an existing domain setup within our organization and route 53 service. This setup will be a separate topic or added here at a later date.
 
-copilot app init --domain some_domain_provided_by_operations.dev.r53.aws.it.ucla.edu
+`copilot app init --domain some_domain_provided_by_operations.dev.r53.aws.it.ucla.edu`
 
 If you do not have a domain, you can alternatively run
 
-copilot app init 
+`copilot app init`
 
 *This command will generate a root domain entry in route 53 for you that will tie to aws, not UCLA on completion of the steps after the command. 
 
@@ -31,18 +31,18 @@ At this point copilot will execute a series of standard cloud formation template
 ### Creating the environment
 Once our application is created, we'll want to create our environment within the application. The following command initializes and environment configuration creation locally (not on aws) unless you specify to deploy as part of the questions at the end. In this first example, we're telling copilot we want to initialize an environment called `test` which will house any services, scheduled tasks, or other units of work we want to deploy. We're also telling copilot which utilizes the `aws cli` we downladed earlier (or you already have installed) that we want to use our default profile (this may vary by user, but generally its default). Next, we're telling copilot that we already have a vpc we want to use. It should be noted at this point that all landing zone accounts from UCLA contain a single vpc, 2 public subnets, and 2 private subnets, which is what we'll use here. You can find the values for these various ID(s) within the aws console under the EC2 section, usually under navigation on the left. So back to the command. We've told it the name of the environment, the vpc we want to use, the public subnets we want to use and the private subnets we want to use. Each of these attributes are technically optional, but we do use them significantly.
 
-copilot env init --name test --profile default --import-vpc-id vpc-Id --import-public-subnets subnet-id-1,subnet-id-2 --import-private-subnets subnet-id-3,subnet-id-4
+`copilot env init --name test --profile default --import-vpc-id vpc-Id --import-public-subnets subnet-id-1,subnet-id-2 --import-private-subnets subnet-id-3,subnet-id-4`
 
 Alternatively, if this isn't UCLA specific, you can simply run the following command which will create the vpc and subnets upon deployment:
 
-copilot env init --name test --profile default
+`copilot env init --name test --profile default`
 
 This command will generate the necessary CloudFormation stacks for the environment which will include the provisioning of the ECS cluster (empty) and any roles or policies needed to add services to that cluster and run them. Once created, we will have an empty cluster waiting for our use.
 
 ### Deploying the service
 Getting our defined service into aws is a single command away! With this command we're telling copilot we want to deploy the service with the name we specify to the environment we specify.
 
-copilot svc deploy --name name-of-service-we-used-previously --env name-of-envirnment-we-created
+`copilot svc deploy --name name-of-service-we-used-previously --env name-of-envirnment-we-created`
 
 Upon running this command, copilot will generate and run CloudFormation(CFN) Templates modifying the infrastructure and deploying the application to our specifications. After a few short minutes, the command should complete (it will list the tasks its trying to accomplish) and finally spit out an active url you can copy and view.
 
