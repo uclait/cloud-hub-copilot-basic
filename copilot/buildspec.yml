@@ -6,6 +6,7 @@ phases:
       docker: 18
       ruby: 2.6
     commands:
+      - docker login -u $dockerhub_username -p $dockerhub_password
       - echo "cd into $CODEBUILD_SRC_DIR"
       - cd $CODEBUILD_SRC_DIR
       # Download the copilot linux binary.
